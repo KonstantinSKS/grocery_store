@@ -41,7 +41,7 @@ class Product(AbstractModel):
     category = models.ForeignKey(
         'Category',
         verbose_name='Категория',
-        related_name='categories',
+        related_name='products',
         on_delete=models.PROTECT
     )
     subcategory = models.ForeignKey(
