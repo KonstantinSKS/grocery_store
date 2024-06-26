@@ -1,4 +1,5 @@
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.exceptions import ValidationError
 from django.db import models
 from imagekit.models import ImageSpecField
 from imagekit.processors import ResizeToFill
@@ -53,7 +54,8 @@ class Product(AbstractModel):
     price = models.DecimalField(
         verbose_name='Цена',
         max_digits=PRICE_MAX_DIGITS,
-        decimal_places=PRICE_DECIMAL_PLACES
+        decimal_places=PRICE_DECIMAL_PLACES,
+        validators=[MinValueValidator(0)],  # Вынести в константы!
     )
     image_thumbnail = ImageSpecField(
         source='image',
@@ -76,7 +78,13 @@ class Product(AbstractModel):
         verbose_name_plural = 'Продукты'
 
     def __str__(self):
-        return self.price
+        return f'{self.name} - {self.price} р.'
+
+    def clean(self):
+        super().clean()
+        if self.subcategory.category != self.category:
+            raise ValidationError(
+                'Подкатегория должна быть связана с родительсокй категорией!')
 
 
 class Category(AbstractModel):
@@ -105,7 +113,7 @@ class ShoppingCart(models.Model):
     """Модель корзины."""
     user = models.ForeignKey(
         User,
-        verbose_name='Автор рецепта',
+        verbose_name='Пользователь корзины',
         on_delete=models.CASCADE,
         related_name='users'
     )
