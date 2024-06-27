@@ -139,7 +139,7 @@ class ShoppingCartProducts(models.Model):
         ShoppingCart,
         verbose_name='Корзина покупок',
         on_delete=models.CASCADE,
-        related_name='users'
+        related_name='cart_products'
     )
     product = models.ForeignKey(
         Product,

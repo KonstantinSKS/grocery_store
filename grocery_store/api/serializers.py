@@ -59,5 +59,35 @@ class ShoppingCartProductsReadOnlySerializer(serializers.ModelSerializer):
             'name',
             'price',
             'amount',
-            'purchase'
+            'total_price'
         )
+
+
+class ShoppingCartProductsSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField()
+
+    class Meta:
+        model = ShoppingCartProducts
+        fields = (
+            'id',
+            'quantity',
+        )
+
+
+class ShoppingCartReadOnlySerializer(serializers.ModelSerializer):
+    products = ShoppingCartProductsReadOnlySerializer(source='cart_products',
+                                                      many=True)
+    product_quantity = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ShoppingCart
+        fields = ('id',
+                  'products',
+                  'product_quantity')
+
+    def get_product_quantity(self, obj):
+        return obj.cart_products.count()
+
+
+class ShoppingCartCreateOrUpdateSerializer(serializers.ModelSerializer):
+    ...
