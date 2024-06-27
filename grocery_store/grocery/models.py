@@ -80,6 +80,10 @@ class Product(AbstractModel):
     def __str__(self):
         return f'{self.name} - {self.price} р.'
 
+    @property
+    def image_list(self):
+        return [self.image, self.image_medium, self.image_large]
+
     # def clean(self):
     #     super().clean()
     #     if self.subcategory.category != self.category:
@@ -169,3 +173,7 @@ class ShoppingCartProducts(models.Model):
 
     def __str__(self):
         return f'{self.product.name}: {self.quantity} шт.'
+
+    @property
+    def total_price(self):
+        return self.product.price * self.quantity
