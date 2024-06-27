@@ -39,12 +39,12 @@ class AbstractModel(models.Model):
 
 class Product(AbstractModel):
     """Модель продукта."""
-    category = models.ForeignKey(
-        'Category',
-        verbose_name='Категория',
-        related_name='products',
-        on_delete=models.PROTECT
-    )
+    # category = models.ForeignKey(
+    #     'Category',
+    #     verbose_name='Категория',
+    #     related_name='products',
+    #     on_delete=models.PROTECT
+    # )
     subcategory = models.ForeignKey(
         'Subcategory',
         verbose_name='Подкатегория ',
@@ -80,11 +80,11 @@ class Product(AbstractModel):
     def __str__(self):
         return f'{self.name} - {self.price} р.'
 
-    def clean(self):
-        super().clean()
-        if self.subcategory.category != self.category:
-            raise ValidationError(
-                'Подкатегория должна быть связана с родительсокй категорией!')
+    # def clean(self):
+    #     super().clean()
+    #     if self.subcategory.category != self.category:
+    #         raise ValidationError(
+    #             'Подкатегория должна быть связана с родительсокй категорией!')
 
 
 class Category(AbstractModel):
