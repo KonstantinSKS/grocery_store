@@ -22,7 +22,11 @@ class CategoryReadOnlySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Category
-        fields = ('id', 'name', 'slug', 'image', 'subcategories')
+        fields = ('id',
+                  'name',
+                  'slug',
+                  'image',
+                  'subcategories')
 
 
 class ProductReadOnlySerializer(serializers.ModelSerializer):
@@ -30,7 +34,10 @@ class ProductReadOnlySerializer(serializers.ModelSerializer):
                                                 read_only=True)
     category = CategoryReadOnlySerializer(source='categories',
                                           read_only=True)
-    image_list = serializers.ListSerializer(child=serializers.ImageField(),
+    # image_list = serializers.ListSerializer(child=serializers.ImageField(),
+    #                                         read_only=True)
+    image_list = serializers.ListSerializer(child=serializers.URLField(),
+                                            source='image_list',
                                             read_only=True)
 
     class Meta:
@@ -42,7 +49,7 @@ class ProductReadOnlySerializer(serializers.ModelSerializer):
             'category',
             'subcategory',
             'price',
-            'image_list,'
+            'image_list'
         )
 
 
@@ -58,7 +65,7 @@ class ShoppingCartProductsReadOnlySerializer(serializers.ModelSerializer):
             'id',
             'name',
             'price',
-            'amount',
+            'quantity',
             'total_price'
         )
 
@@ -90,4 +97,66 @@ class ShoppingCartReadOnlySerializer(serializers.ModelSerializer):
 
 
 class ShoppingCartCreateOrUpdateSerializer(serializers.ModelSerializer):
-    ...
+    products = ShoppingCartProductsSerializer(many=True)
+
+    class Meta:
+        model = ShoppingCart
+        exclude = ('user',)
+        read_only_fields = ('user',)
+
+    def validate_products(self, products):
+        user = self.instance
+        curent_user = self.context.get('request').user
+        if user.users.filter(user=curent_user).exists():
+            raise serializers.ValidationError(
+                'Корзина уже существует!'
+            )
+        if not products:
+            raise serializers.ValidationError(
+                'В корзине должен быть минимум 1 товар!'
+            )
+        # products_list = set()
+        # for product in products:
+        #     product = get_object_or_404(Product, id=product['id'])
+        #     if product in products_list:
+        #         raise serializers.ValidationError(
+        #             'В корзине не может быть два одинаковых продукта!'
+        #         )
+        #     products_list.add(product)
+
+        product_ids = [product['id'] for product in products]
+        if len(product_ids) != len(set(product_ids)):
+            raise serializers.ValidationError(
+                'В корзине не может быть два одинаковых продукта!'
+            )
+        return products
+
+    def create_products_amounts(self, products, shopping_cart):
+        ShoppingCartProducts.objects.bulk_create(
+            [ShoppingCartProducts(
+                shopping_cart=shopping_cart,
+                product_id=product['id'],
+                # product=Product.objects.get(id=product['id']),
+                quantity=product['quantity']
+            ) for product in products]
+        )
+
+    def create(self, validated_data):
+        products = validated_data.pop('products')
+        shopping_cart = ShoppingCart.objects.create(**validated_data)
+        self.create_products_amounts(products=products,
+                                     shopping_cart=shopping_cart)
+        return shopping_cart
+
+    def update(self, instance, validated_data):
+        products = validated_data.pop('products')
+        instance.products.clear()
+        self.create_products_amounts(products=products,
+                                     shopping_cart=instance)
+        return super().update(instance, validated_data)
+
+    def to_representation(self, instance):
+        return ShoppingCartReadOnlySerializer(
+            instance,
+            context=self.context
+        ).data

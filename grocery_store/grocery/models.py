@@ -39,12 +39,6 @@ class AbstractModel(models.Model):
 
 class Product(AbstractModel):
     """Модель продукта."""
-    # category = models.ForeignKey(
-    #     'Category',
-    #     verbose_name='Категория',
-    #     related_name='products',
-    #     on_delete=models.PROTECT
-    # )
     subcategory = models.ForeignKey(
         'Subcategory',
         verbose_name='Подкатегория ',
@@ -82,7 +76,8 @@ class Product(AbstractModel):
 
     @property
     def image_list(self):
-        return [self.image, self.image_medium, self.image_large]
+        return [self.image.url, self.image_medium.url, self.image_large.url]
+        # return [self.image, self.image_medium, self.image_large]
 
     # def clean(self):
     #     super().clean()
