@@ -18,7 +18,8 @@ class SubcategoryReadOnlySerializer(serializers.ModelSerializer):
 
 
 class CategoryReadOnlySerializer(serializers.ModelSerializer):
-    subcategories = SubcategoryReadOnlySerializer(many=True, read_only=True,)
+    subcategories = SubcategoryReadOnlySerializer(many=True, read_only=True)
+    # subcategories = serializers.SerializerMethodField()
 
     class Meta:
         model = Category
@@ -27,6 +28,10 @@ class CategoryReadOnlySerializer(serializers.ModelSerializer):
                   'slug',
                   'image',
                   'subcategories')
+
+    # def get_subcategories(self, obj):
+    #     subcategories = obj.subcategory_set.all()
+    #     return SubcategoryReadOnlySerializer(subcategories, many=True).data
 
 
 class ProductReadOnlySerializer(serializers.ModelSerializer):
@@ -37,7 +42,7 @@ class ProductReadOnlySerializer(serializers.ModelSerializer):
     # image_list = serializers.ListSerializer(child=serializers.ImageField(),
     #                                         read_only=True)
     image_list = serializers.ListSerializer(child=serializers.URLField(),
-                                            source='image_list',
+                                            # source='image_list',
                                             read_only=True)
 
     class Meta:

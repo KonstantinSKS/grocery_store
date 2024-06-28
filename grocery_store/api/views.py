@@ -20,9 +20,9 @@ class ProductViewSet(viewsets.ReadOnlyModelViewSet):
     pagination_class = LimitPagesPagination
 
 
-class CategoryViewSet(generics.ListAPIView):
-    queryset = Category.objects.prefetch_related('subcategories')
-    # queryset = Category.objects.all()
+class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
+    # queryset = Category.objects.prefetch_related('subcategories')
+    queryset = Category.objects.all()
     serializer_class = CategoryReadOnlySerializer
     permission_classes = (AllowAny,)
     pagination_class = LimitPagesPagination
