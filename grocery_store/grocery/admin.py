@@ -1,14 +1,9 @@
 from django.contrib import admin
+from django.utils.safestring import mark_safe
 
 from imagekit.admin import AdminThumbnail
 
-from .models import (Product, Category, Subcategory,
-                     ShoppingCart, ShoppingCartProducts,)
-
-
-# class CategoryInline(admin.TabularInline):
-#     model = Category
-#     extra = 0
+from .models import Product, Category, Subcategory
 
 
 @admin.register(Product)
@@ -17,31 +12,49 @@ class ProductAdmin(admin.ModelAdmin):
         'name',
         'price',
         'subcategory',
-        'admin_thumbnail',  # image_thumbnail
+        'admin_thumbnail',
     )
     list_filter = (
         'name',
         'subcategory',)
     search_fields = ('name',)
     admin_thumbnail = AdminThumbnail(image_field='image_thumbnail')
-    # readonly_fields = ['admin_thumbnail',]
 
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
-    ...
+    list_display = (
+        'id',
+        'name',
+        'slug',
+        'icon',
+    )
+    search_fields = ('name',)
+    list_filter = ('name',)
+
+    @admin.display(description='Изображение')
+    def icon(self, category):
+        if category.image:
+            return mark_safe(f"<img src='{category.image.url}' width=50>")
+        return 'Без фото'
 
 
 @admin.register(Subcategory)
 class SubcategoryAdmin(admin.ModelAdmin):
-    ...
+    list_display = (
+        'id',
+        'name',
+        'slug',
+        'category',
+        'icon',
+        'image'
+    )
+    search_fields = ('name',)
+    list_filter = ('category',)
+    readonly_fields = ('icon',)
 
-
-@admin.register(ShoppingCart)
-class ShoppingCartAdmin(admin.ModelAdmin):
-    ...
-
-
-@admin.register(ShoppingCartProducts)
-class ShoppingCartProductsAdmin(admin.ModelAdmin):
-    ...
+    @admin.display(description='Изображение')
+    def icon(self, subcategory):
+        if subcategory.image:
+            return mark_safe(f"<img src='{subcategory.image.url}' width=50>")
+        return 'Без фото'

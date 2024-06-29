@@ -1,16 +1,14 @@
-from rest_framework import viewsets, status, generics
+from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.decorators import action
 
 from grocery.models import (
-    Product, Category, Subcategory, ShoppingCart, ShoppingCartProducts)
+    Product, Category, ShoppingCart, ShoppingCartProducts)
 from .pagination import LimitPagesPagination
 from .serializers import (
-    SubcategoryReadOnlySerializer, CategoryReadOnlySerializer,
-    ProductReadOnlySerializer, ShoppingCartProductsReadOnlySerializer,
-    ShoppingCartProductsSerializer, ShoppingCartReadOnlySerializer,
-    ShoppingCartCreateOrUpdateSerializer)
+    CategoryReadOnlySerializer, ProductReadOnlySerializer,
+    ShoppingCartReadOnlySerializer, ShoppingCartCreateOrUpdateSerializer)
 
 
 class ProductViewSet(viewsets.ReadOnlyModelViewSet):
@@ -21,7 +19,6 @@ class ProductViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
-    # queryset = Category.objects.prefetch_related('subcategories')
     queryset = Category.objects.all()
     serializer_class = CategoryReadOnlySerializer
     permission_classes = (AllowAny,)

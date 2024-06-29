@@ -1,14 +1,7 @@
-from django.core.validators import MinValueValidator, MaxValueValidator
-from django.contrib.auth.password_validation import validate_password
-from django.shortcuts import get_object_or_404
-from djoser.serializers import UserSerializer, UserCreateSerializer
-# from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 
 from grocery.models import (Product, Category, Subcategory,
-                            ShoppingCart, ShoppingCartProducts,
-                            MIN_UNIT_AMOUNT, MAX_UNIT_AMOUNT)
-from users.models import User
+                            ShoppingCart, ShoppingCartProducts)
 
 
 class SubcategoryReadOnlySerializer(serializers.ModelSerializer):
@@ -19,7 +12,6 @@ class SubcategoryReadOnlySerializer(serializers.ModelSerializer):
 
 class CategoryReadOnlySerializer(serializers.ModelSerializer):
     subcategories = SubcategoryReadOnlySerializer(many=True, read_only=True)
-    # subcategories = serializers.SerializerMethodField()
 
     class Meta:
         model = Category
@@ -29,20 +21,13 @@ class CategoryReadOnlySerializer(serializers.ModelSerializer):
                   'image',
                   'subcategories')
 
-    # def get_subcategories(self, obj):
-    #     subcategories = obj.subcategory_set.all()
-    #     return SubcategoryReadOnlySerializer(subcategories, many=True).data
-
 
 class ProductReadOnlySerializer(serializers.ModelSerializer):
     subcategory = SubcategoryReadOnlySerializer(source='subcategories',
                                                 read_only=True)
     category = CategoryReadOnlySerializer(source='categories',
                                           read_only=True)
-    # image_list = serializers.ListSerializer(child=serializers.ImageField(),
-    #                                         read_only=True)
     image_list = serializers.ListSerializer(child=serializers.URLField(),
-                                            # source='image_list',
                                             read_only=True)
 
     class Meta:
@@ -120,15 +105,6 @@ class ShoppingCartCreateOrUpdateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 'В корзине должен быть минимум 1 товар!'
             )
-        # products_list = set()
-        # for product in products:
-        #     product = get_object_or_404(Product, id=product['id'])
-        #     if product in products_list:
-        #         raise serializers.ValidationError(
-        #             'В корзине не может быть два одинаковых продукта!'
-        #         )
-        #     products_list.add(product)
-
         product_ids = [product['id'] for product in products]
         if len(product_ids) != len(set(product_ids)):
             raise serializers.ValidationError(
@@ -141,7 +117,6 @@ class ShoppingCartCreateOrUpdateSerializer(serializers.ModelSerializer):
             [ShoppingCartProducts(
                 shopping_cart=shopping_cart,
                 product_id=product['id'],
-                # product=Product.objects.get(id=product['id']),
                 quantity=product['quantity']
             ) for product in products]
         )

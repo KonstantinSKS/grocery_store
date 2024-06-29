@@ -1,5 +1,4 @@
 from django.core.validators import MinValueValidator, MaxValueValidator
-from django.core.exceptions import ValidationError
 from django.db import models
 from imagekit.models import ImageSpecField
 from imagekit.processors import ResizeToFill
@@ -49,11 +48,11 @@ class Product(AbstractModel):
         verbose_name='Цена',
         max_digits=PRICE_MAX_DIGITS,
         decimal_places=PRICE_DECIMAL_PLACES,
-        validators=[MinValueValidator(0)],  # Вынести в константы!
+        validators=[MinValueValidator(0)],
     )
     image_thumbnail = ImageSpecField(
         source='image',
-        processors=[ResizeToFill(100, 50)],  # Вынести в константы!
+        processors=[ResizeToFill(100, 50)],
         format='JPEG',
         options={'quality': 60})
     image_medium = ImageSpecField(
@@ -77,13 +76,6 @@ class Product(AbstractModel):
     @property
     def image_list(self):
         return [self.image.url, self.image_medium.url, self.image_large.url]
-        # return [self.image, self.image_medium, self.image_large]
-
-    # def clean(self):
-    #     super().clean()
-    #     if self.subcategory.category != self.category:
-    #         raise ValidationError(
-    #             'Подкатегория должна быть связана с родительсокй категорией!')
 
 
 class Category(AbstractModel):
@@ -100,7 +92,7 @@ class Subcategory(AbstractModel):
         Category,
         verbose_name='Категория',
         related_name='subcategories',
-        on_delete=models.CASCADE   # on_delete=models.PROTECT
+        on_delete=models.CASCADE
     )
 
     class Meta:
@@ -139,7 +131,7 @@ class ShoppingCartProducts(models.Model):
     product = models.ForeignKey(
         Product,
         verbose_name='Продукты',
-        on_delete=models.CASCADE,   # on_delete=models.PROTECT
+        on_delete=models.CASCADE,
         related_name='products'
     )
     quantity = models.PositiveIntegerField(
