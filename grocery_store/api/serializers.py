@@ -129,11 +129,11 @@ class ShoppingCartCreateOrUpdateSerializer(serializers.ModelSerializer):
         return shopping_cart
 
     def update(self, instance, validated_data):
-        products = validated_data.pop('products')
-        instance.products.clear()
-        self.create_products_amounts(products=products,
-                                     shopping_cart=instance)
-        return super().update(instance, validated_data)
+        products = validated_data.pop('products', None)
+        if products is not None:
+            instance.products.set(products)
+        instance.save()
+        return instance
 
     def to_representation(self, instance):
         return ShoppingCartReadOnlySerializer(

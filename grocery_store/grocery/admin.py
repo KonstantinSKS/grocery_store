@@ -35,8 +35,8 @@ class CategoryAdmin(admin.ModelAdmin):
     @admin.display(description='Изображение')
     def icon(self, category):
         if category.image:
-            return mark_safe(f"<img src='{category.image.url}' width=50>")
-        return 'Без фото'
+            return mark_safe(f"<img src='{category.image.url}' width=100>")
+        return 'Изображение отсутствует'
 
 
 @admin.register(Subcategory)
@@ -56,5 +56,5 @@ class SubcategoryAdmin(admin.ModelAdmin):
     @admin.display(description='Изображение')
     def icon(self, subcategory):
         if subcategory.image:
-            return mark_safe(f"<img src='{subcategory.image.url}' width=50>")
-        return 'Без фото'
+            return mark_safe(f"<img src='{subcategory.image.url}' width=100>")
+        return 'Изображение отсутствует'
