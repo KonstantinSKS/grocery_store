@@ -35,14 +35,14 @@ cd grocery_store
 ```
 Cоздать и активировать виртуальное окружение:
 ```
-python3 -m venv env
+py -3.11 -m venv venv
 ```
 ```
-source env/bin/activate
+source venv/Scripts/activate
 ```
 Установить зависимости из файла requirements.txt:
 ```
-python3 -m pip install --upgrade pip
+python -m pip install --upgrade pip
 ```
 ```
 pip install -r requirements.txt
@@ -66,7 +66,7 @@ python manage.py createsuperuser
 ```
 Запустить проект:
 ```
-python3 manage.py runserver
+python manage.py runserver
 ```
 
 После запуска сервера документация к API и примеры запросов будут доступны по ссылкам:
